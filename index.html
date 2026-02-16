@@ -232,7 +232,7 @@ async function hashPassword(p){
 }
 
 /* Auto login */
-const saved=localStorage.getItem("user");
+const saved=localStorage.getItem("userProfile");
 if(saved) showDashboard(JSON.parse(saved));
 
 async function login(){
@@ -247,7 +247,7 @@ async function login(){
     .then(s=>{
       if(s.empty) return msg.innerText="Invalid login";
       const user=s.docs[0].data();
-      localStorage.setItem("user",JSON.stringify(user));
+      localStorage.setItem("userProfile",JSON.stringify(user));
       showDashboard(user);
     });
 }
@@ -268,7 +268,7 @@ function loadMembers(user){
   q.onSnapshot(renderMembers);
 }
 function renderMembers(snap){
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("userProfile"));
   list.innerHTML = "";
 
   snap.forEach(d=>{
@@ -304,7 +304,7 @@ function renderMembers(snap){
 
 
 function addMember(){
-  const user=JSON.parse(localStorage.getItem("user"));
+  const user=JSON.parse(localStorage.getItem("userProfile"));
   if(!walletUserId.value||!walletUserName.value) return;
 
   db.collection("members").add({
