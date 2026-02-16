@@ -265,8 +265,10 @@ function loadMembers(user){
   q.onSnapshot(renderMembers);
 }
 
+function renderMembers(snap) {
+  const user = JSON.parse(localStorage.getItem("userProfile"));
+  if (!user) return;
 
-function renderMembers(snap, user) {
   list.innerHTML = "";
 
   if (snap.empty) {
@@ -283,8 +285,8 @@ function renderMembers(snap, user) {
 
     // 🔐 User rules
     if (user.role !== "admin") {
-      // show only own members
       if (m.createdBy !== user.username) return;
+      if (!m.active) return;
     }
 
     list.innerHTML += `
@@ -314,6 +316,7 @@ function renderMembers(snap, user) {
     `;
   });
 }
+
   
 
 function addMember(){
