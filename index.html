@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>User Login Panel</title>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+  background:
+    radial-gradient(1200px 600px at top right,#1e293b33,transparent),
+    radial-gradient(800px 400px at bottom left,#0ea5e933,transparent),
+    linear-gradient(135deg,#020617,#020617);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#e5e7eb;
+}
+
+/* Desktop block */
+#desktopBlock{
+  display:none;
+  text-align:center;
+  padding:30px;
+  max-width:420px;
+}
+#desktopBlock h2{
+  color:#fb7185;
+  margin-bottom:8px;
+}
+#desktopBlock p{
+  color:#94a3b8;
+  font-size:14px;
+}
+
+/* App */
+#app{width:100%;padding:18px}
+
+/* Card */
+.card{
+  width:100%;
+  max-width:420px;
+  background:linear-gradient(
+    180deg,
+    rgba(15,23,42,.85),
+    rgba(2,6,23,.85)
+  );
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-radius:18px;
+  padding:22px;
+  box-shadow:
+    0 20px 40px rgba(0,0,0,.65),
+    inset 0 1px 0 rgba(255,255,255,.04);
+  border:1px solid rgba(148,163,184,.12);
+  margin:auto;
+}
+
+h2{
+  text-align:center;
+  margin:0 0 18px;
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:.3px;
+}
+
+/* Inputs */
+input{
+  width:100%;
+  padding:14px 14px;
+  margin-bottom:12px;
+  border-radius:12px;
+  border:1px solid rgba(148,163,184,.15);
+  background:rgba(2,6,23,.6);
+  color:#f8fafc;
+  font-size:14px;
+  outline:none;
+  transition:.25s;
+}
+input::placeholder{color:#64748b}
+input:focus{
+  border-color:#38bdf8;
+  box-shadow:0 0 0 3px rgba(56,189,248,.18);
+}
+
+/* Buttons */
+button{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+  font-size:14px;
+  transition:.25s;
+}
+
+.primary{
+  background:linear-gradient(135deg,#38bdf8,#0ea5e9);
+  color:#020617;
+  box-shadow:0 8px 20px rgba(14,165,233,.35);
+}
+.primary:active{transform:scale(.97)}
+
+.logout{
+  background:linear-gradient(135deg,#ef4444,#dc2626);
+  color:#fff;
+  margin-top:16px;
+}
+
+/* List items */
+.item{
+  background:rgba(2,6,23,.6);
+  border:1px solid rgba(148,163,184,.14);
+  padding:14px;
+  border-radius:14px;
+  margin-top:12px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
+  font-size:14px;
+}
+
+/* Badge */
+.badge{
+  font-size:11px;
+  padding:4px 10px;
+  border-radius:999px;
+  margin-left:6px;
+  display:inline-block;
+}
+.active{
+  background:rgba(34,197,94,.18);
+  color:#22c55e;
+  border:1px solid rgba(34,197,94,.35);
+}
+.inactive{
+  background:rgba(239,68,68,.18);
+  color:#ef4444;
+  border:1px solid rgba(239,68,68,.35);
+}
+
+/* Actions */
+.actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
+}
+.actions button{
+  flex:1;
+  padding:9px;
+  border-radius:10px;
+  font-size:13px;
+  background:rgba(148,163,184,.12);
+  color:#e5e7eb;
+}
+.actions button:active{transform:scale(.96)}
+.actions button:last-child{
+  background:linear-gradient(135deg,#ef4444,#dc2626);
+  color:#fff;
+}
+
+/* Helpers */
+.hide{display:none}
+.msg{
+  text-align:center;
+  color:#fb7185;
+  font-size:13px;
+  margin-top:6px;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- Desktop blocked -->
+<div id="desktopBlock">
+  <h2>Desktop Not Supported</h2>
+  <p>Please open this app on a mobile device.</p>
+</div>
+
+<!-- App -->
+<div id="app">
+
+<div class="card" id="loginBox">
+  <h2>Login</h2>
+  <input id="username" placeholder="Username">
+  <input id="password" type="password" placeholder="Password">
+  <button class="primary" onclick="login()">Login</button>
+  <div class="msg" id="msg"></div>
+</div>
+
+<div class="card hide" id="dashboard">
+  <h2 id="title"></h2>
+
+  <input id="walletUserId" placeholder="AR Wallet User ID">
+  <input id="walletUserName" placeholder="User Name">
+  <button class="primary" onclick="addMember()">Add</button>
+
+  <div id="list"></div>
+
+  <button class="logout" onclick="logout()">Logout</button>
+</div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* 📱 MOBILE ONLY */
+function isMobile(){
+  return (
+    window.innerWidth <= 768 ||
+    'ontouchstart' in window ||
+    navigator.userAgent.match(/Android|iPhone|iPad|iPod|Mobile/i)
+  );
+}
+if(!isMobile()){
+  desktopBlock.style.display="block";
+  throw new Error("Desktop blocked");
+}else{
+  app.style.display="block";
+}
+
+/* Firebase */
+firebase.initializeApp({
+  apiKey:"AIzaSyCI7WjTsCfYrFU0U38y84PvSE1ysoOmc68",
+  projectId:"wallet-automation-a59da"
+});
+const db=firebase.firestore();
+
+/* Toast for success only */
+const toast = Swal.mixin({
+  toast:true,
+  position:"bottom-end",
+  showConfirmButton:false,
+  timer:1500
+});
+
+/* Hash */
+async function hashPassword(p){
+  const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(p));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+}
+
+/* Auto login */
+const saved=localStorage.getItem("user");
+if(saved) showDashboard(JSON.parse(saved));
+
+async function login(){
+  const u=username.value.trim(),p=password.value;
+  if(!u||!p) return;
+  const h=await hashPassword(p);
+
+  db.collection("users")
+    .where("username","==",u)
+    .where("passwordHash","==",h)
+    .where("active","==",true)
+    .get()
+    .then(s=>{
+      if(s.empty) return msg.innerText="Invalid login";
+      const user=s.docs[0].data();
+      localStorage.setItem("user",JSON.stringify(user));
+      showDashboard(user);
+    });
+}
+
+function showDashboard(user){
+  loginBox.classList.add("hide");
+  dashboard.classList.remove("hide");
+  title.innerText=user.role==="admin"?"Admin Dashboard":"User Dashboard";
+  loadMembers(user);
+}
+
+/* Load members */
+function loadMembers(user){
+  let q=db.collection("members").orderBy("createdAt","desc");
+  if(user.role!=="admin"){
+    q=q.where("createdBy","==",user.username).where("active","==",true);
+  }
+  q.onSnapshot(renderMembers);
+}
+
+/* Render */
+function renderMembers(snap){
+  const user=JSON.parse(localStorage.getItem("user"));
+  list.innerHTML="";
+  snap.forEach(d=>{
+    const m=d.data();
+    list.innerHTML+=`
+      <div class="item">
+        <b>${m.walletUserName}</b><br>
+        ID: ${m.walletUserId}
+        <span class="badge ${m.active?'active':'inactive'}">
+          ${m.active?'ACTIVE':'INACTIVE'}
+        </span>
+
+        ${user.role==="admin"?`
+        <div class="actions">
+          <button onclick="confirmToggle('${d.id}',${m.active})">
+            ${m.active?'Deactivate':'Activate'}
+          </button>
+          <button style="background:#ef4444;color:#fff"
+            onclick="confirmDelete('${d.id}','${m.walletUserName}')">
+            Delete
+          </button>
+        </div>`:""}
+      </div>`;
+  });
+}
+
+/* Add */
+function addMember(){
+  const user=JSON.parse(localStorage.getItem("user"));
+  if(!walletUserId.value||!walletUserName.value) return;
+
+  db.collection("members").add({
+    walletUserId:walletUserId.value.trim(),
+    walletUserName:walletUserName.value.trim(),
+    createdBy:user.username,
+    createdByRole:user.role,
+    active:true,
+    createdAt:Date.now()
+  }).then(()=>{
+    toast.fire({icon:"success",title:"Member added"});
+    walletUserId.value="";
+    walletUserName.value="";
+  });
+}
+
+/* 🔴 FULL-SCREEN CONFIRM TOGGLE */
+function confirmToggle(id,isActive){
+  Swal.fire({
+    title: isActive ? "Deactivate Member?" : "Activate Member?",
+    text: "Are you sure you want to continue?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#64748b",
+    confirmButtonText: "Yes",
+    cancelButtonText: "Cancel"
+  }).then(r=>{
+    if(r.isConfirmed){
+      db.collection("members").doc(id).update({active:!isActive})
+        .then(()=>toast.fire({
+          icon:"success",
+          title:isActive?"Deactivated":"Activated"
+        }));
+    }
+  });
+}
+
+/* 🔴 FULL-SCREEN CONFIRM DELETE */
+function confirmDelete(id,name){
+  Swal.fire({
+    title: "Delete Member?",
+    text: `This will permanently delete ${name}`,
+    icon: "error",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#64748b",
+    confirmButtonText: "Delete",
+    cancelButtonText: "Cancel"
+  }).then(r=>{
+    if(r.isConfirmed){
+      db.collection("members").doc(id).delete()
+        .then(()=>toast.fire({icon:"success",title:"Deleted"}));
+    }
+  });
+}
+
+function logout(){
+  localStorage.clear();
+  location.reload();
+}
+</script>
+
+</body>
+</html>
