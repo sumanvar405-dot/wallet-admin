@@ -267,30 +267,41 @@ function loadMembers(user){
   }
   q.onSnapshot(renderMembers);
 }
-
 function renderMembers(snap){
-  const user=JSON.parse(localStorage.getItem("user"));
-  list.innerHTML="";
+  const user = JSON.parse(localStorage.getItem("user"));
+  list.innerHTML = "";
+
   snap.forEach(d=>{
-    const m=d.data();
-    list.innerHTML+=`
+    const m = d.data();
+
+    list.innerHTML += `
       <div class="item">
         <b>${m.walletUserName}</b><br>
-        ID: ${m.walletUserId}
-        <span class="badge ${m.active?'active':'inactive'}">
-          ${m.active?'ACTIVE':'INACTIVE'}
+
+        ID: ${m.walletUserId}<br>
+
+        <small style="color:#94a3b8">
+          Created by: <b style="color:#e5e7eb">${m.createdBy}</b>
+        </small>
+
+        <span class="badge ${m.active ? 'active' : 'inactive'}">
+          ${m.active ? 'ACTIVE' : 'INACTIVE'}
         </span>
 
-        ${user.role==="admin"?`
+        ${user.role === "admin" ? `
         <div class="actions">
-          <button onclick="toggle('${d.id}',${m.active})">
-            ${m.active?'Deactivate':'Activate'}
+          <button onclick="toggle('${d.id}', ${m.active})">
+            ${m.active ? 'Deactivate' : 'Activate'}
           </button>
-          <button onclick="del('${d.id}','${m.walletUserName}')">Delete</button>
-        </div>`:""}
-      </div>`;
+          <button onclick="del('${d.id}', '${m.walletUserName}')">
+            Delete
+          </button>
+        </div>` : ""}
+      </div>
+    `;
   });
 }
+
 
 function addMember(){
   const user=JSON.parse(localStorage.getItem("user"));
