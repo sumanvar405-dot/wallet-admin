@@ -285,8 +285,6 @@ function renderMembers(snap, user) {
     if (user.role !== "admin") {
       // show only own members
       if (m.createdBy !== user.username) return;
-      // show only active members
-      if (!m.active) return;
     }
 
     list.innerHTML += `
