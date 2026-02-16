@@ -303,7 +303,7 @@ function renderMembers(snap) {
           ${m.active ? 'ACTIVE' : 'INACTIVE'}
         </span>
 
-        ${user.role === "admin" ? `
+        
         <div class="actions">
           <button onclick="toggle('${doc.id}', ${m.active})">
             ${m.active ? 'Deactivate' : 'Activate'}
@@ -311,7 +311,7 @@ function renderMembers(snap) {
           <button onclick="del('${doc.id}', '${m.walletUserName}')">
             Delete
           </button>
-        </div>` : ""}
+        </div>
       </div>
     `;
   });
