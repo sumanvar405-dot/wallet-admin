@@ -262,26 +262,41 @@ function showDashboard(user){
 /* Load members (createdBy NOT shown) */
 function loadMembers(user){
   let q=db.collection("members").orderBy("createdAt","desc");
-  if(user.role!=="admin"){
-    q=q.where("createdBy","==",user.username).where("active","==",true);
-  }
   q.onSnapshot(renderMembers);
 }
-function renderMembers(snap){
-  const user = JSON.parse(localStorage.getItem("userProfile"));
+
+
+function renderMembers(snap, user) {
   list.innerHTML = "";
 
-  snap.forEach(d=>{
-    const m = d.data();
+  if (snap.empty) {
+    list.innerHTML = `
+      <div class="item" style="text-align:center;color:#94a3b8">
+        No members found
+      </div>
+    `;
+    return;
+  }
+
+  snap.forEach(doc => {
+    const m = doc.data();
+
+    // 🔐 User rules
+    if (user.role !== "admin") {
+      // show only own members
+      if (m.createdBy !== user.username) return;
+      // show only active members
+      if (!m.active) return;
+    }
 
     list.innerHTML += `
       <div class="item">
         <b>${m.walletUserName}</b><br>
-
         ID: ${m.walletUserId}<br>
 
         <small style="color:#94a3b8">
-          Created by: <b style="color:#e5e7eb">${m.createdBy}</b>
+          Created by:
+          <b style="color:#e5e7eb">${m.createdBy}</b>
         </small>
 
         <span class="badge ${m.active ? 'active' : 'inactive'}">
@@ -290,10 +305,10 @@ function renderMembers(snap){
 
         ${user.role === "admin" ? `
         <div class="actions">
-          <button onclick="toggle('${d.id}', ${m.active})">
+          <button onclick="toggle('${doc.id}', ${m.active})">
             ${m.active ? 'Deactivate' : 'Activate'}
           </button>
-          <button onclick="del('${d.id}', '${m.walletUserName}')">
+          <button onclick="del('${doc.id}', '${m.walletUserName}')">
             Delete
           </button>
         </div>` : ""}
@@ -301,7 +316,7 @@ function renderMembers(snap){
     `;
   });
 }
-
+  
 
 function addMember(){
   const user=JSON.parse(localStorage.getItem("userProfile"));
