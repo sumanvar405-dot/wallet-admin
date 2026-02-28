@@ -22,49 +22,52 @@ linear-gradient(135deg,#020617,#020617);
 display:flex;align-items:center;justify-content:center;color:#e5e7eb;
 }
 
-#app{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:16px}
-
 .card{
-width:100%;max-width:420px;
+width:100%;
+max-width:420px;
 background:rgba(15,23,42,.85);
 backdrop-filter:blur(22px);
-border-radius:28px;padding:24px;
+border-radius:28px;
+padding:24px;
 border:1px solid rgba(148,163,184,.18);
 box-shadow:0 30px 60px rgba(0,0,0,.7);
 position:relative;
 }
 
-.headerRow{
+.header{
 display:flex;
 justify-content:space-between;
 align-items:center;
 margin-bottom:20px;
 }
 
-.profileIcon{
+.profile{
 width:38px;height:38px;
 border-radius:50%;
 background:linear-gradient(135deg,#38bdf8,#0ea5e9);
-display:flex;align-items:center;justify-content:center;
+display:flex;
+align-items:center;
+justify-content:center;
 cursor:pointer;
-font-weight:bold;
+font-weight:600;
 color:#020617;
+box-shadow:0 8px 20px rgba(56,189,248,.3);
 }
 
-.profileMenu{
+.dropdown{
 position:absolute;
 top:70px;
 right:24px;
 background:#0f172a;
 border:1px solid rgba(148,163,184,.2);
-border-radius:14px;
+border-radius:16px;
 padding:10px;
+width:180px;
 display:none;
-z-index:10;
-width:160px;
+box-shadow:0 15px 40px rgba(0,0,0,.6);
 }
 
-.profileMenu button{
+.dropdown button{
 background:none;
 border:none;
 color:#fff;
@@ -73,20 +76,35 @@ padding:10px;
 text-align:left;
 cursor:pointer;
 border-radius:10px;
+font-size:14px;
 }
 
-.profileMenu button:hover{
+.dropdown button:hover{
 background:#1e293b;
 }
 
 input,select{
 width:100%;
 padding:14px;
-border-radius:16px;
+margin-bottom:14px;
+border-radius:18px;
 border:1px solid rgba(148,163,184,.2);
 background:rgba(2,6,23,.7);
 color:#fff;
 font-size:14px;
+}
+
+.filters{
+display:flex;
+gap:12px;
+margin-top:1rem;
+margin-bottom:14px;
+}
+
+.filters select,
+.filters input{
+flex:1;
+margin-bottom:0;
 }
 
 button.primary{
@@ -97,32 +115,35 @@ border:none;
 padding:14px;
 border-radius:18px;
 cursor:pointer;
+margin-bottom:10px;
 }
 
-#list{margin-top:20px;max-height:45vh;overflow-y:auto}
+#list{
+margin-top:20px;
+max-height:45vh;
+overflow-y:auto;
+}
 
 .item{
 background:rgba(2,6,23,.7);
-padding:16px;border-radius:20px;
+padding:16px;
+border-radius:20px;
 border:1px solid rgba(148,163,184,.18);
 margin-bottom:14px;
 }
 
 .balance{
-margin-top:6px;
+margin-top:8px;
 font-size:16px;
-font-weight:bold;
+font-weight:700;
 color:#facc15;
-}
-
-.filters{
 display:flex;
-gap:10px;
-margin-top:1rem;
+align-items:center;
+gap:6px;
 }
 
-.filters select,.filters input{
-flex:1;
+.balance span{
+font-size:18px;
 }
 
 .hide{display:none}
@@ -130,40 +151,38 @@ flex:1;
 </head>
 
 <body>
-<div id="app">
 
 <div class="card" id="loginBox">
 <h2 style="text-align:center;margin-bottom:20px">Login</h2>
-<input id="username" placeholder="Username"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
 <button class="primary" onclick="login()">Login</button>
-<div id="msg" style="margin-top:10px;color:#fb7185;text-align:center"></div>
+<div id="msg" style="text-align:center;color:#fb7185;margin-top:10px"></div>
 </div>
 
 <div class="card hide" id="dashboard">
 
-<div class="headerRow">
+<div class="header">
 <h2 id="title"></h2>
-<div class="profileIcon" onclick="toggleMenu()">☻</div>
+<div class="profile" onclick="toggleMenu()">☻</div>
 </div>
 
-<div class="profileMenu" id="profileMenu">
-<button onclick="openChangePassword()">Change Password</button>
+<div class="dropdown" id="menu">
+<button onclick="changePassword()">Change Password</button>
 <button onclick="logout()">Logout</button>
 </div>
 
-<input id="walletUserId" placeholder="AR Wallet User ID"><br><br>
-<input id="walletUserName" placeholder="User Name"><br><br>
+<input id="walletUserId" placeholder="AR Wallet User ID">
+<input id="walletUserName" placeholder="User Name">
 <button class="primary" onclick="addMember()">Add Member</button>
 
 <div id="adminFilters" class="filters hide">
 <select id="filterCreatedBy"></select>
-<input id="filterSearch" placeholder="Search by Name or ID">
+<input id="filterSearch" placeholder="Search Name or ID">
 </div>
 
 <div id="list"></div>
 
-</div>
 </div>
 
 <script>
@@ -199,27 +218,26 @@ function showDashboard(user){
 loginBox.classList.add("hide");
 dashboard.classList.remove("hide");
 title.innerText=user.role==="admin"?"Admin Dashboard":"User Dashboard";
-if(user.role==="admin"){
-adminFilters.classList.remove("hide");
-}
+if(user.role==="admin") adminFilters.classList.remove("hide");
 loadMembers(user);
 }
 
 function toggleMenu(){
-profileMenu.style.display=
-profileMenu.style.display==="block"?"none":"block";
+menu.style.display=menu.style.display==="block"?"none":"block";
 }
 
-function openChangePassword(){
-Swal.fire({
+async function changePassword(){
+const {value}=await Swal.fire({
 title:"Change Password",
 input:"password",
 inputPlaceholder:"Enter new password",
 showCancelButton:true
-}).then(async result=>{
-if(!result.value) return;
+});
+if(!value) return;
+
 const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
-const h=await hashPassword(result.value);
+const h=await hashPassword(value);
+
 db.collection("users")
 .where("username","==",user.username)
 .get()
@@ -228,7 +246,6 @@ db.collection("users").doc(s.docs[0].id)
 .update({passwordHash:h})
 .then(()=>Swal.fire("Success","Password changed","success"));
 });
-});
 }
 
 function loadMembers(user){
@@ -236,14 +253,14 @@ db.collection("members").orderBy("createdAt","desc")
 .onSnapshot(snap=>{
 window.latestSnap=snap;
 renderMembers(snap);
-populateCreatedByDropdown(snap);
+populateDropdown(snap);
 });
 }
 
-function populateCreatedByDropdown(snap){
+function populateDropdown(snap){
 const set=new Set();
 snap.forEach(d=>set.add(d.data().createdBy));
-filterCreatedBy.innerHTML='<option value="">All</option>';
+filterCreatedBy.innerHTML='<option value="">All Users</option>';
 set.forEach(v=>{
 filterCreatedBy.innerHTML+=`<option value="${v}">${v}</option>`;
 });
@@ -277,7 +294,10 @@ list.innerHTML+=`
 <div class="item">
 <b>${m.walletUserName}</b><br>
 ID: ${m.walletUserId}
-${m.balance!==undefined?`<div class="balance">₹ ${m.balance}</div>`:""}
+${m.balance!==undefined?`
+<div class="balance">
+<span>₹</span> ${m.balance}
+</div>`:""}
 </div>
 `;
 });
