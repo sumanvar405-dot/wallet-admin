@@ -11,331 +11,295 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <style>
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-  margin:0;
-  padding:0;
-}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 
 body{
-  height:100vh;
-  height:100dvh;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
-  background:
-    radial-gradient(circle at top right,#38bdf820,transparent 50%),
-    radial-gradient(circle at bottom left,#ef444420,transparent 50%),
-    linear-gradient(135deg,#020617,#020617);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  color:#e5e7eb;
+height:100vh;height:100dvh;
+font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+background:
+radial-gradient(circle at top right,#38bdf820,transparent 50%),
+radial-gradient(circle at bottom left,#ef444420,transparent 50%),
+linear-gradient(135deg,#020617,#020617);
+display:flex;align-items:center;justify-content:center;color:#e5e7eb;
 }
 
-#desktopBlock{
-  display:none;
-  max-width:380px;
-  padding:28px;
-  text-align:center;
-  background:rgba(15,23,42,.8);
-  border-radius:24px;
-  border:1px solid rgba(148,163,184,.2);
-}
+#desktopBlock{display:none;max-width:380px;padding:28px;text-align:center;background:rgba(15,23,42,.8);border-radius:24px;border:1px solid rgba(148,163,184,.2)}
 
-#app{
-  width:100%;
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:16px;
-}
+#app{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:16px}
 
 .card{
-  width:100%;
-  max-width:420px;
-  background:rgba(15,23,42,.85);
-  backdrop-filter:blur(22px);
-  border-radius:28px;
-  padding:24px;
-  border:1px solid rgba(148,163,184,.18);
-  box-shadow:0 30px 60px rgba(0,0,0,.7);
+width:100%;max-width:420px;
+background:rgba(15,23,42,.85);
+backdrop-filter:blur(22px);
+border-radius:28px;padding:24px;
+border:1px solid rgba(148,163,184,.18);
+box-shadow:0 30px 60px rgba(0,0,0,.7);
 }
 
-h2{
-  text-align:center;
-  margin-bottom:20px;
-  font-size:22px;
-}
+h2{text-align:center;margin-bottom:20px;font-size:22px}
 
 input{
-  width:100%;
-  padding:16px;
-  margin-bottom:14px;
-  border-radius:18px;
-  border:1px solid rgba(148,163,184,.2);
-  background:rgba(2,6,23,.7);
-  color:#fff;
-  font-size:15px;
+width:100%;padding:16px;margin-bottom:14px;
+border-radius:18px;border:1px solid rgba(148,163,184,.2);
+background:rgba(2,6,23,.7);color:#fff;font-size:15px;
 }
 
-input:focus{
-  outline:none;
-  border-color:#38bdf8;
-  box-shadow:0 0 0 4px rgba(56,189,248,.25);
-}
+input:focus{outline:none;border-color:#38bdf8;box-shadow:0 0 0 4px rgba(56,189,248,.25)}
 
 button{
-  width:100%;
-  padding:15px;
-  border-radius:20px;
-  border:none;
-  font-size:15px;
-  font-weight:600;
-  cursor:pointer;
+width:100%;padding:15px;border-radius:20px;border:none;
+font-size:15px;font-weight:600;cursor:pointer;
 }
 
-.primary{
-  background:linear-gradient(135deg,#38bdf8,#0ea5e9);
-  color:#020617;
-}
+.primary{background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#020617}
+.logout{margin-top:24px;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff}
 
-.logout{
-  margin-top:24px;
-  background:linear-gradient(135deg,#ef4444,#b91c1c);
-  color:#fff;
-}
-
-#list{
-  margin-top:20px;
-  max-height:45vh;
-  overflow-y:auto;
-}
+#list{margin-top:20px;max-height:45vh;overflow-y:auto}
 
 .item{
-  background:rgba(2,6,23,.7);
-  padding:16px;
-  border-radius:20px;
-  border:1px solid rgba(148,163,184,.18);
-  margin-bottom:14px;
+background:rgba(2,6,23,.7);
+padding:16px;border-radius:20px;
+border:1px solid rgba(148,163,184,.18);
+margin-bottom:14px;
 }
 
-.item b{
-  font-size:16px;
+.badge{display:inline-block;margin-left:6px;padding:4px 10px;font-size:11px;border-radius:999px}
+.active{color:#22c55e;border:1px solid rgba(34,197,94,.4)}
+.inactive{color:#ef4444;border:1px solid rgba(239,68,68,.4)}
+
+.actions{display:flex;gap:10px;margin-top:12px}
+.actions button{padding:10px;font-size:13px;border-radius:16px;background:#334155;color:#fff}
+.actions button:last-child{background:#ef4444}
+
+.balance{
+margin-top:6px;
+font-size:16px;
+font-weight:bold;
+color:#facc15;
+display:flex;
+align-items:center;
+gap:6px;
 }
 
-.badge{
-  display:inline-block;
-  margin-left:6px;
-  padding:4px 10px;
-  font-size:11px;
-  border-radius:999px;
+.balance span{
+font-size:18px;
 }
 
-.active{
-  color:#22c55e;
-  border:1px solid rgba(34,197,94,.4);
-}
-
-.inactive{
-  color:#ef4444;
-  border:1px solid rgba(239,68,68,.4);
-}
-
-.actions{
-  display:flex;
-  gap:10px;
-  margin-top:12px;
-}
-
-.actions button{
-  padding:10px;
-  font-size:13px;
-  border-radius:16px;
-  background:#334155;
-  color:#fff;
-}
-
-.actions button:last-child{
-  background:#ef4444;
+.filterBox{
+margin-bottom:12px;
 }
 
 .hide{display:none}
-.msg{
-  text-align:center;
-  margin-top:8px;
-  color:#fb7185;
-  font-size:13px;
-}
+.msg{text-align:center;margin-top:8px;color:#fb7185;font-size:13px}
 </style>
 </head>
 
 <body>
 
 <div id="desktopBlock">
-  <h2>Mobile Only</h2>
-  <p>Please open this app on a mobile device.</p>
+<h2>Mobile Only</h2>
+<p>Please open this app on a mobile device.</p>
 </div>
 
 <div id="app">
 
-  <div class="card" id="loginBox">
-    <h2>Login</h2>
-    <input id="username" placeholder="Username">
-    <input id="password" type="password" placeholder="Password">
-    <button class="primary" onclick="login()">Login</button>
-    <div class="msg" id="msg"></div>
-  </div>
+<div class="card" id="loginBox">
+<h2>Login</h2>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+<button class="primary" onclick="login()">Login</button>
+<div class="msg" id="msg"></div>
+</div>
 
-  <div class="card hide" id="dashboard">
-    <h2 id="title"></h2>
+<div class="card hide" id="dashboard">
+<h2 id="title"></h2>
 
-    <input id="walletUserId" placeholder="AR Wallet User ID">
-    <input id="walletUserName" placeholder="User Name">
-    <button class="primary" onclick="addMember()">Add Member</button>
+<input id="walletUserId" placeholder="AR Wallet User ID">
+<input id="walletUserName" placeholder="User Name">
+<button class="primary" onclick="addMember()">Add Member</button>
 
-    <div id="list"></div>
+<div id="adminFilters" class="hide">
+<input id="filterCreatedBy" placeholder="Filter by Created By">
+<input id="filterSearch" placeholder="Search by Name or User ID">
+</div>
 
-    <button class="logout" onclick="logout()">Logout</button>
-  </div>
+<div id="list"></div>
+
+<hr style="margin:20px 0;border-color:#334155">
+
+<input id="newPassword" type="password" placeholder="New Password">
+<button class="primary" onclick="changePassword()">Change Password</button>
+
+<button class="logout" onclick="logout()">Logout</button>
+</div>
 
 </div>
 
 <script>
+
 if(!(/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent))){
-  desktopBlock.style.display="block";
-  app.style.display="none";
+desktopBlock.style.display="block";
+app.style.display="none";
 }
 
 firebase.initializeApp({
-  apiKey:"AIzaSyCI7WjTsCfYrFU0U38y84PvSE1ysoOmc68",
-  projectId:"wallet-automation-a59da"
+apiKey:"AIzaSyCI7WjTsCfYrFU0U38y84PvSE1ysoOmc68",
+projectId:"wallet-automation-a59da"
 });
 const db=firebase.firestore();
 
 async function hashPassword(p){
-  const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(p));
-  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
+const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(p));
+return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
 }
 
 const saved=localStorage.getItem("userProfileDashboard");
 if(saved) showDashboard(JSON.parse(saved));
 
 async function login(){
-  if(!username.value||!password.value) return;
-  const h=await hashPassword(password.value);
+if(!username.value||!password.value) return;
+const h=await hashPassword(password.value);
 
-  db.collection("users")
-    .where("username","==",username.value.trim())
-    .where("passwordHash","==",h)
-    .where("active","==",true)
-    .get()
-    .then(s=>{
-      if(s.empty) return msg.innerText="Invalid login";
-      const user=s.docs[0].data();
-      localStorage.setItem("userProfileDashboard",JSON.stringify(user));
-      showDashboard(user);
-    });
+db.collection("users")
+.where("username","==",username.value.trim())
+.where("passwordHash","==",h)
+.where("active","==",true)
+.get()
+.then(s=>{
+if(s.empty) return msg.innerText="Invalid login";
+const user=s.docs[0].data();
+localStorage.setItem("userProfileDashboard",JSON.stringify(user));
+showDashboard(user);
+});
 }
 
 function showDashboard(user){
-  loginBox.classList.add("hide");
-  dashboard.classList.remove("hide");
-  title.innerText=user.role==="admin"?"Admin Dashboard":"User Dashboard";
-  loadMembers(user);
+loginBox.classList.add("hide");
+dashboard.classList.remove("hide");
+title.innerText=user.role==="admin"?"Admin Dashboard":"User Dashboard";
+if(user.role==="admin") adminFilters.classList.remove("hide");
+loadMembers(user);
+
+filterCreatedBy?.addEventListener("input",()=>renderMembers(window.latestSnap));
+filterSearch?.addEventListener("input",()=>renderMembers(window.latestSnap));
 }
 
 function loadMembers(user){
-  let q=db.collection("members").orderBy("createdAt","desc");
-  q.onSnapshot(renderMembers);
+db.collection("members").orderBy("createdAt","desc")
+.onSnapshot(snap=>{
+window.latestSnap=snap;
+renderMembers(snap);
+});
 }
 
-function renderMembers(snap) {
-  const user = JSON.parse(localStorage.getItem("userProfileDashboard"));
-  if (!user) return;
+function renderMembers(snap){
+const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
+if(!user) return;
 
-  list.innerHTML = "";
+list.innerHTML="";
 
-  if (snap.empty) {
-    list.innerHTML = `
-      <div class="item" style="text-align:center;color:#94a3b8">
-        No members found
-      </div>
-    `;
-    return;
-  }
+snap.forEach(doc=>{
+const m=doc.data();
 
-  snap.forEach(doc => {
-    const m = doc.data();
+if(user.role!=="admin"){
+if(m.createdBy!==user.username) return;
+if(!m.active) return;
+}
 
-    if (user.role !== "admin") {
-      if (m.createdBy !== user.username) return;
-      if (!m.active) return;
-    }
+if(user.role==="admin"){
+if(filterCreatedBy.value && !m.createdBy.toLowerCase().includes(filterCreatedBy.value.toLowerCase())) return;
 
-    const balanceHtml = m.balance !== undefined
-      ? `<br><span style="color:#38bdf8;font-weight:600">Balance: ₹${m.balance}</span>`
-      : "";
+if(filterSearch.value){
+const search=filterSearch.value.toLowerCase();
+if(!m.walletUserName.toLowerCase().includes(search) &&
+!m.walletUserId.toLowerCase().includes(search)) return;
+}
+}
 
-    list.innerHTML += `
-      <div class="item">
-        <b>${m.walletUserName}</b><br>
-        ID: ${m.walletUserId}
-        ${balanceHtml}<br>
+list.innerHTML+=`
+<div class="item">
+<b>${m.walletUserName}</b><br>
+ID: ${m.walletUserId}
 
-        <small style="color:#94a3b8">
-          Created by:
-          <b style="color:#e5e7eb">${m.createdBy}</b>
-        </small>
+${m.balance!==undefined?`
+<div class="balance">
+<span>₹</span> ${m.balance}
+</div>`:""}
 
-        <span class="badge ${m.active ? 'active' : 'inactive'}">
-          ${m.active ? 'ACTIVE' : 'INACTIVE'}
-        </span>
+<br>
+<small style="color:#94a3b8">
+Created by: <b style="color:#e5e7eb">${m.createdBy}</b>
+</small>
 
-        <div class="actions">
-          <button onclick="toggle('${doc.id}', ${m.active})">
-            ${m.active ? 'Deactivate' : 'Activate'}
-          </button>
-          <button onclick="del('${doc.id}', '${m.walletUserName}')">
-            Delete
-          </button>
-        </div>
-      </div>
-    `;
-  });
+<span class="badge ${m.active?'active':'inactive'}">
+${m.active?'ACTIVE':'INACTIVE'}
+</span>
+
+<div class="actions">
+<button onclick="toggle('${doc.id}',${m.active})">
+${m.active?'Deactivate':'Activate'}
+</button>
+<button onclick="del('${doc.id}','${m.walletUserName}')">
+Delete
+</button>
+</div>
+</div>
+`;
+});
 }
 
 function addMember(){
-  const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
-  if(!walletUserId.value||!walletUserName.value) return;
+const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
+if(!walletUserId.value||!walletUserName.value) return;
 
-  db.collection("members").add({
-    walletUserId:walletUserId.value.trim(),
-    walletUserName:walletUserName.value.trim(),
-    createdBy:user.username,
-    createdByRole:user.role,
-    active:true,
-    createdAt:Date.now()
-  });
+db.collection("members").add({
+walletUserId:walletUserId.value.trim(),
+walletUserName:walletUserName.value.trim(),
+createdBy:user.username,
+createdByRole:user.role,
+active:true,
+createdAt:Date.now()
+});
 
-  walletUserId.value="";
-  walletUserName.value="";
+walletUserId.value="";
+walletUserName.value="";
 }
 
 function toggle(id,a){
-  db.collection("members").doc(id).update({active:!a});
+db.collection("members").doc(id).update({active:!a});
 }
 
 function del(id,n){
-  if(confirm("Delete "+n+" ?")){
-    db.collection("members").doc(id).delete();
-  }
+if(confirm("Delete "+n+" ?")){
+db.collection("members").doc(id).delete();
+}
+}
+
+async function changePassword(){
+const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
+if(!newPassword.value) return;
+
+const h=await hashPassword(newPassword.value);
+
+db.collection("users")
+.where("username","==",user.username)
+.get()
+.then(s=>{
+if(s.empty) return;
+db.collection("users").doc(s.docs[0].id)
+.update({passwordHash:h})
+.then(()=>{
+Swal.fire("Success","Password changed","success");
+newPassword.value="";
+});
+});
 }
 
 function logout(){
-  localStorage.clear();
-  location.reload();
+localStorage.clear();
+location.reload();
 }
+
 </script>
 
 </body>
