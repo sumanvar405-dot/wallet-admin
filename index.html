@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <title>AR Wallet Panel</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -34,7 +33,46 @@ backdrop-filter:blur(22px);
 border-radius:28px;padding:24px;
 border:1px solid rgba(148,163,184,.18);
 box-shadow:0 30px 60px rgba(0,0,0,.7);
+position:relative;
 }
+
+.profile{
+position:absolute;
+top:18px;
+right:18px;
+cursor:pointer;
+}
+
+.profile img{
+width:38px;height:38px;border-radius:50%;
+border:2px solid #38bdf8;
+}
+
+.dropdown{
+position:absolute;
+top:60px;
+right:0;
+background:#0f172a;
+border:1px solid #334155;
+border-radius:16px;
+padding:10px;
+display:none;
+flex-direction:column;
+gap:8px;
+min-width:150px;
+}
+
+.dropdown button{
+background:#1e293b;
+color:#fff;
+border:none;
+padding:8px;
+border-radius:10px;
+font-size:13px;
+cursor:pointer;
+}
+
+.dropdown button:last-child{background:#ef4444}
 
 h2{text-align:center;margin-bottom:20px;font-size:22px}
 
@@ -52,7 +90,6 @@ font-size:15px;font-weight:600;cursor:pointer;
 }
 
 .primary{background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#020617}
-.logout{margin-top:24px;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff}
 
 #list{margin-top:20px;max-height:45vh;overflow-y:auto}
 
@@ -70,24 +107,6 @@ margin-bottom:14px;
 .actions{display:flex;gap:10px;margin-top:12px}
 .actions button{padding:10px;font-size:13px;border-radius:16px;background:#334155;color:#fff}
 .actions button:last-child{background:#ef4444}
-
-.balance{
-margin-top:6px;
-font-size:16px;
-font-weight:bold;
-color:#facc15;
-display:flex;
-align-items:center;
-gap:6px;
-}
-
-.balance span{
-font-size:18px;
-}
-
-.filterBox{
-margin-bottom:12px;
-}
 
 .hide{display:none}
 .msg{text-align:center;margin-top:8px;color:#fb7185;font-size:13px}
@@ -112,25 +131,25 @@ margin-bottom:12px;
 </div>
 
 <div class="card hide" id="dashboard">
+
+<div class="profile" onclick="toggleMenu()">
+<img src="https://i.pravatar.cc/100">
+<div class="dropdown" id="profileMenu">
+<button onclick="openPassword()">Change Password</button>
+<button onclick="logout()">Logout</button>
+</div>
+</div>
+
 <h2 id="title"></h2>
 
 <input id="walletUserId" placeholder="AR Wallet User ID">
 <input id="walletUserName" placeholder="User Name">
 <button class="primary" onclick="addMember()">Add Member</button>
 
-<div id="adminFilters" class="hide">
-<input id="filterCreatedBy" placeholder="Filter by Created By">
-<input id="filterSearch" placeholder="Search by Name or User ID">
-</div>
+<input id="singleFilter" placeholder="Search by Name, User ID or Created By">
 
 <div id="list"></div>
 
-<hr style="margin:20px 0;border-color:#334155">
-
-<input id="newPassword" type="password" placeholder="New Password">
-<button class="primary" onclick="changePassword()">Change Password</button>
-
-<button class="logout" onclick="logout()">Logout</button>
 </div>
 
 </div>
@@ -177,11 +196,8 @@ function showDashboard(user){
 loginBox.classList.add("hide");
 dashboard.classList.remove("hide");
 title.innerText=user.role==="admin"?"Admin Dashboard":"User Dashboard";
-if(user.role==="admin") adminFilters.classList.remove("hide");
 loadMembers(user);
-
-filterCreatedBy?.addEventListener("input",()=>renderMembers(window.latestSnap));
-filterSearch?.addEventListener("input",()=>renderMembers(window.latestSnap));
+singleFilter.addEventListener("input",()=>renderMembers(window.latestSnap));
 }
 
 function loadMembers(user){
@@ -195,8 +211,8 @@ renderMembers(snap);
 function renderMembers(snap){
 const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
 if(!user) return;
-
 list.innerHTML="";
+const filter=singleFilter.value.toLowerCase();
 
 snap.forEach(doc=>{
 const m=doc.data();
@@ -206,26 +222,18 @@ if(m.createdBy!==user.username) return;
 if(!m.active) return;
 }
 
-if(user.role==="admin"){
-if(filterCreatedBy.value && !m.createdBy.toLowerCase().includes(filterCreatedBy.value.toLowerCase())) return;
-
-if(filterSearch.value){
-const search=filterSearch.value.toLowerCase();
-if(!m.walletUserName.toLowerCase().includes(search) &&
-!m.walletUserId.toLowerCase().includes(search)) return;
-}
+if(filter){
+if(
+!m.walletUserName.toLowerCase().includes(filter) &&
+!m.walletUserId.toLowerCase().includes(filter) &&
+!m.createdBy.toLowerCase().includes(filter)
+) return;
 }
 
 list.innerHTML+=`
 <div class="item">
 <b>${m.walletUserName}</b><br>
 ID: ${m.walletUserId}
-
-${m.balance!==undefined?`
-<div class="balance">
-<span>₹</span> ${m.balance}
-</div>`:""}
-
 <br>
 <small style="color:#94a3b8">
 Created by: <b style="color:#e5e7eb">${m.createdBy}</b>
@@ -250,7 +258,10 @@ Delete
 
 function addMember(){
 const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
-if(!walletUserId.value||!walletUserName.value) return;
+if(!walletUserId.value.trim()||!walletUserName.value.trim()){
+Swal.fire("Error","All fields are required","error");
+return;
+}
 
 db.collection("members").add({
 walletUserId:walletUserId.value.trim(),
@@ -275,22 +286,28 @@ db.collection("members").doc(id).delete();
 }
 }
 
-async function changePassword(){
+function toggleMenu(){
+profileMenu.style.display=
+profileMenu.style.display==="flex"?"none":"flex";
+}
+
+function openPassword(){
+Swal.fire({
+title:"Change Password",
+input:"password",
+inputPlaceholder:"Enter new password",
+confirmButtonText:"Update"
+}).then(async result=>{
+if(!result.value) return;
 const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
-if(!newPassword.value) return;
-
-const h=await hashPassword(newPassword.value);
-
+const h=await hashPassword(result.value);
 db.collection("users")
 .where("username","==",user.username)
 .get()
 .then(s=>{
-if(s.empty) return;
 db.collection("users").doc(s.docs[0].id)
 .update({passwordHash:h})
-.then(()=>{
-Swal.fire("Success","Password changed","success");
-newPassword.value="";
+.then(()=>Swal.fire("Success","Password changed","success"));
 });
 });
 }
