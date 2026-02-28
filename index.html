@@ -60,6 +60,7 @@ display:none;
 flex-direction:column;
 gap:8px;
 min-width:150px;
+z-index:10;
 }
 
 .dropdown button{
@@ -100,6 +101,20 @@ border:1px solid rgba(148,163,184,.18);
 margin-bottom:14px;
 }
 
+.balance{
+margin-top:6px;
+font-size:16px;
+font-weight:bold;
+color:#facc15;
+display:flex;
+align-items:center;
+gap:6px;
+}
+
+.balance span{
+font-size:18px;
+}
+
 .badge{display:inline-block;margin-left:6px;padding:4px 10px;font-size:11px;border-radius:999px}
 .active{color:#22c55e;border:1px solid rgba(34,197,94,.4)}
 .inactive{color:#ef4444;border:1px solid rgba(239,68,68,.4)}
@@ -107,6 +122,10 @@ margin-bottom:14px;
 .actions{display:flex;gap:10px;margin-top:12px}
 .actions button{padding:10px;font-size:13px;border-radius:16px;background:#334155;color:#fff}
 .actions button:last-child{background:#ef4444}
+
+.filterBox{
+margin-top:18px;
+}
 
 .hide{display:none}
 .msg{text-align:center;margin-top:8px;color:#fb7185;font-size:13px}
@@ -146,12 +165,13 @@ margin-bottom:14px;
 <input id="walletUserName" placeholder="User Name">
 <button class="primary" onclick="addMember()">Add Member</button>
 
+<div id="adminFilterBox" class="filterBox hide">
 <input id="singleFilter" placeholder="Search by Name, User ID or Created By">
+</div>
 
 <div id="list"></div>
 
 </div>
-
 </div>
 
 <script>
@@ -196,8 +216,13 @@ function showDashboard(user){
 loginBox.classList.add("hide");
 dashboard.classList.remove("hide");
 title.innerText=user.role==="admin"?"Admin Dashboard":"User Dashboard";
-loadMembers(user);
+
+if(user.role==="admin"){
+adminFilterBox.classList.remove("hide");
 singleFilter.addEventListener("input",()=>renderMembers(window.latestSnap));
+}
+
+loadMembers(user);
 }
 
 function loadMembers(user){
@@ -211,8 +236,9 @@ renderMembers(snap);
 function renderMembers(snap){
 const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
 if(!user) return;
+
 list.innerHTML="";
-const filter=singleFilter.value.toLowerCase();
+const filter=user.role==="admin" ? singleFilter.value.toLowerCase() : "";
 
 snap.forEach(doc=>{
 const m=doc.data();
@@ -222,7 +248,7 @@ if(m.createdBy!==user.username) return;
 if(!m.active) return;
 }
 
-if(filter){
+if(user.role==="admin" && filter){
 if(
 !m.walletUserName.toLowerCase().includes(filter) &&
 !m.walletUserId.toLowerCase().includes(filter) &&
@@ -234,6 +260,12 @@ list.innerHTML+=`
 <div class="item">
 <b>${m.walletUserName}</b><br>
 ID: ${m.walletUserId}
+
+${m.balance!==undefined?`
+<div class="balance">
+<span>₹</span> ${m.balance}
+</div>`:""}
+
 <br>
 <small style="color:#94a3b8">
 Created by: <b style="color:#e5e7eb">${m.createdBy}</b>
@@ -258,6 +290,7 @@ Delete
 
 function addMember(){
 const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
+
 if(!walletUserId.value.trim()||!walletUserName.value.trim()){
 Swal.fire("Error","All fields are required","error");
 return;
