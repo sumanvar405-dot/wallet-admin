@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>AR Wallet Panel</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -22,120 +23,58 @@ linear-gradient(135deg,#020617,#020617);
 display:flex;align-items:center;justify-content:center;color:#e5e7eb;
 }
 
+#desktopBlock{display:none;max-width:380px;padding:28px;text-align:center;background:rgba(15,23,42,.8);border-radius:24px;border:1px solid rgba(148,163,184,.2)}
+
+#app{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:16px}
+
 .card{
-width:100%;
-max-width:420px;
+width:100%;max-width:420px;
 background:rgba(15,23,42,.85);
 backdrop-filter:blur(22px);
-border-radius:28px;
-padding:24px;
+border-radius:28px;padding:24px;
 border:1px solid rgba(148,163,184,.18);
 box-shadow:0 30px 60px rgba(0,0,0,.7);
-position:relative;
 }
 
-.header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
+h2{text-align:center;margin-bottom:20px;font-size:22px}
+
+input{
+width:100%;padding:16px;margin-bottom:14px;
+border-radius:18px;border:1px solid rgba(148,163,184,.2);
+background:rgba(2,6,23,.7);color:#fff;font-size:15px;
 }
 
-.profile{
-width:38px;height:38px;
-border-radius:50%;
-background:linear-gradient(135deg,#38bdf8,#0ea5e9);
-display:flex;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-font-weight:600;
-color:#020617;
-box-shadow:0 8px 20px rgba(56,189,248,.3);
+input:focus{outline:none;border-color:#38bdf8;box-shadow:0 0 0 4px rgba(56,189,248,.25)}
+
+button{
+width:100%;padding:15px;border-radius:20px;border:none;
+font-size:15px;font-weight:600;cursor:pointer;
 }
 
-.dropdown{
-position:absolute;
-top:70px;
-right:24px;
-background:#0f172a;
-border:1px solid rgba(148,163,184,.2);
-border-radius:16px;
-padding:10px;
-width:180px;
-display:none;
-box-shadow:0 15px 40px rgba(0,0,0,.6);
-}
+.primary{background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#020617}
+.logout{margin-top:24px;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff}
 
-.dropdown button{
-background:none;
-border:none;
-color:#fff;
-width:100%;
-padding:10px;
-text-align:left;
-cursor:pointer;
-border-radius:10px;
-font-size:14px;
-}
-
-.dropdown button:hover{
-background:#1e293b;
-}
-
-input,select{
-width:100%;
-padding:14px;
-margin-bottom:14px;
-border-radius:18px;
-border:1px solid rgba(148,163,184,.2);
-background:rgba(2,6,23,.7);
-color:#fff;
-font-size:14px;
-}
-
-.filters{
-display:flex;
-gap:12px;
-margin-top:1rem;
-margin-bottom:14px;
-}
-
-.filters select,
-.filters input{
-flex:1;
-margin-bottom:0;
-}
-
-button.primary{
-background:linear-gradient(135deg,#38bdf8,#0ea5e9);
-color:#020617;
-font-weight:600;
-border:none;
-padding:14px;
-border-radius:18px;
-cursor:pointer;
-margin-bottom:10px;
-}
-
-#list{
-margin-top:20px;
-max-height:45vh;
-overflow-y:auto;
-}
+#list{margin-top:20px;max-height:45vh;overflow-y:auto}
 
 .item{
 background:rgba(2,6,23,.7);
-padding:16px;
-border-radius:20px;
+padding:16px;border-radius:20px;
 border:1px solid rgba(148,163,184,.18);
 margin-bottom:14px;
 }
 
+.badge{display:inline-block;margin-left:6px;padding:4px 10px;font-size:11px;border-radius:999px}
+.active{color:#22c55e;border:1px solid rgba(34,197,94,.4)}
+.inactive{color:#ef4444;border:1px solid rgba(239,68,68,.4)}
+
+.actions{display:flex;gap:10px;margin-top:12px}
+.actions button{padding:10px;font-size:13px;border-radius:16px;background:#334155;color:#fff}
+.actions button:last-child{background:#ef4444}
+
 .balance{
-margin-top:8px;
+margin-top:6px;
 font-size:16px;
-font-weight:700;
+font-weight:bold;
 color:#facc15;
 display:flex;
 align-items:center;
@@ -146,46 +85,63 @@ gap:6px;
 font-size:18px;
 }
 
+.filterBox{
+margin-bottom:12px;
+}
+
 .hide{display:none}
+.msg{text-align:center;margin-top:8px;color:#fb7185;font-size:13px}
 </style>
 </head>
 
 <body>
 
+<div id="desktopBlock">
+<h2>Mobile Only</h2>
+<p>Please open this app on a mobile device.</p>
+</div>
+
+<div id="app">
+
 <div class="card" id="loginBox">
-<h2 style="text-align:center;margin-bottom:20px">Login</h2>
+<h2>Login</h2>
 <input id="username" placeholder="Username">
 <input id="password" type="password" placeholder="Password">
 <button class="primary" onclick="login()">Login</button>
-<div id="msg" style="text-align:center;color:#fb7185;margin-top:10px"></div>
+<div class="msg" id="msg"></div>
 </div>
 
 <div class="card hide" id="dashboard">
-
-<div class="header">
 <h2 id="title"></h2>
-<div class="profile" onclick="toggleMenu()">☻</div>
-</div>
-
-<div class="dropdown" id="menu">
-<button onclick="changePassword()">Change Password</button>
-<button onclick="logout()">Logout</button>
-</div>
 
 <input id="walletUserId" placeholder="AR Wallet User ID">
 <input id="walletUserName" placeholder="User Name">
 <button class="primary" onclick="addMember()">Add Member</button>
 
-<div id="adminFilters" class="filters hide">
-<select id="filterCreatedBy"></select>
-<input id="filterSearch" placeholder="Search Name or ID">
+<div id="adminFilters" class="hide">
+<input id="filterCreatedBy" placeholder="Filter by Created By">
+<input id="filterSearch" placeholder="Search by Name or User ID">
 </div>
 
 <div id="list"></div>
 
+<hr style="margin:20px 0;border-color:#334155">
+
+<input id="newPassword" type="password" placeholder="New Password">
+<button class="primary" onclick="changePassword()">Change Password</button>
+
+<button class="logout" onclick="logout()">Logout</button>
+</div>
+
 </div>
 
 <script>
+
+if(!(/Android|iPhone|iPad|Mobile/i.test(navigator.userAgent))){
+desktopBlock.style.display="block";
+app.style.display="none";
+}
+
 firebase.initializeApp({
 apiKey:"AIzaSyCI7WjTsCfYrFU0U38y84PvSE1ysoOmc68",
 projectId:"wallet-automation-a59da"
@@ -196,6 +152,9 @@ async function hashPassword(p){
 const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(p));
 return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
 }
+
+const saved=localStorage.getItem("userProfileDashboard");
+if(saved) showDashboard(JSON.parse(saved));
 
 async function login(){
 if(!username.value||!password.value) return;
@@ -220,32 +179,9 @@ dashboard.classList.remove("hide");
 title.innerText=user.role==="admin"?"Admin Dashboard":"User Dashboard";
 if(user.role==="admin") adminFilters.classList.remove("hide");
 loadMembers(user);
-}
 
-function toggleMenu(){
-menu.style.display=menu.style.display==="block"?"none":"block";
-}
-
-async function changePassword(){
-const {value}=await Swal.fire({
-title:"Change Password",
-input:"password",
-inputPlaceholder:"Enter new password",
-showCancelButton:true
-});
-if(!value) return;
-
-const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
-const h=await hashPassword(value);
-
-db.collection("users")
-.where("username","==",user.username)
-.get()
-.then(s=>{
-db.collection("users").doc(s.docs[0].id)
-.update({passwordHash:h})
-.then(()=>Swal.fire("Success","Password changed","success"));
-});
+filterCreatedBy?.addEventListener("input",()=>renderMembers(window.latestSnap));
+filterSearch?.addEventListener("input",()=>renderMembers(window.latestSnap));
 }
 
 function loadMembers(user){
@@ -253,24 +189,13 @@ db.collection("members").orderBy("createdAt","desc")
 .onSnapshot(snap=>{
 window.latestSnap=snap;
 renderMembers(snap);
-populateDropdown(snap);
 });
 }
-
-function populateDropdown(snap){
-const set=new Set();
-snap.forEach(d=>set.add(d.data().createdBy));
-filterCreatedBy.innerHTML='<option value="">All Users</option>';
-set.forEach(v=>{
-filterCreatedBy.innerHTML+=`<option value="${v}">${v}</option>`;
-});
-}
-
-filterCreatedBy?.addEventListener("change",()=>renderMembers(window.latestSnap));
-filterSearch?.addEventListener("input",()=>renderMembers(window.latestSnap));
 
 function renderMembers(snap){
 const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
+if(!user) return;
+
 list.innerHTML="";
 
 snap.forEach(doc=>{
@@ -282,11 +207,12 @@ if(!m.active) return;
 }
 
 if(user.role==="admin"){
-if(filterCreatedBy.value && m.createdBy!==filterCreatedBy.value) return;
+if(filterCreatedBy.value && !m.createdBy.toLowerCase().includes(filterCreatedBy.value.toLowerCase())) return;
+
 if(filterSearch.value){
-const s=filterSearch.value.toLowerCase();
-if(!m.walletUserName.toLowerCase().includes(s) &&
-!m.walletUserId.toLowerCase().includes(s)) return;
+const search=filterSearch.value.toLowerCase();
+if(!m.walletUserName.toLowerCase().includes(search) &&
+!m.walletUserId.toLowerCase().includes(search)) return;
 }
 }
 
@@ -294,10 +220,29 @@ list.innerHTML+=`
 <div class="item">
 <b>${m.walletUserName}</b><br>
 ID: ${m.walletUserId}
+
 ${m.balance!==undefined?`
 <div class="balance">
 <span>₹</span> ${m.balance}
 </div>`:""}
+
+<br>
+<small style="color:#94a3b8">
+Created by: <b style="color:#e5e7eb">${m.createdBy}</b>
+</small>
+
+<span class="badge ${m.active?'active':'inactive'}">
+${m.active?'ACTIVE':'INACTIVE'}
+</span>
+
+<div class="actions">
+<button onclick="toggle('${doc.id}',${m.active})">
+${m.active?'Deactivate':'Activate'}
+</button>
+<button onclick="del('${doc.id}','${m.walletUserName}')">
+Delete
+</button>
+</div>
 </div>
 `;
 });
@@ -320,10 +265,41 @@ walletUserId.value="";
 walletUserName.value="";
 }
 
+function toggle(id,a){
+db.collection("members").doc(id).update({active:!a});
+}
+
+function del(id,n){
+if(confirm("Delete "+n+" ?")){
+db.collection("members").doc(id).delete();
+}
+}
+
+async function changePassword(){
+const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
+if(!newPassword.value) return;
+
+const h=await hashPassword(newPassword.value);
+
+db.collection("users")
+.where("username","==",user.username)
+.get()
+.then(s=>{
+if(s.empty) return;
+db.collection("users").doc(s.docs[0].id)
+.update({passwordHash:h})
+.then(()=>{
+Swal.fire("Success","Password changed","success");
+newPassword.value="";
+});
+});
+}
+
 function logout(){
 localStorage.clear();
 location.reload();
 }
+
 </script>
 
 </body>
