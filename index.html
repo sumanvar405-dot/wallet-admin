@@ -262,7 +262,8 @@ list.innerHTML+=`
 ID: ${m.walletUserId}
 
 ${m.balance!==undefined?`
-<div class="balance">
+<div class="balance" style="cursor:pointer"
+onclick="openUserTransactions('${m.walletUserId}','${m.walletUserName}')">
 <span>₹</span> ${m.balance}
 </div>`:""}
 
@@ -288,6 +289,104 @@ Delete
 });
 }
 
+  function openUserTransactions(userId,userName){
+
+if(!userId) return;
+
+db.collection("transactions")
+.where("walletUserId","==",String(userId))
+.orderBy("createdAt","desc")
+.limit(100)
+.get()
+.then(snap=>{
+
+let html = `
+<div style="max-height:60vh;overflow:auto;padding-right:6px">
+`;
+
+if(snap.empty){
+html += `
+<div style="text-align:center;color:#94a3b8;padding:20px">
+No Transactions Found
+</div>`;
+}else{
+
+snap.forEach(doc=>{
+const t = doc.data();
+const isCredit = t.type === "credit";
+
+html += `
+<div style="
+background:rgba(15,23,42,.95);
+padding:14px;
+border-radius:16px;
+margin-bottom:14px;
+border-left:5px solid ${isCredit ? '#22c55e' : '#ef4444'};
+">
+
+<div style="display:flex;justify-content:space-between;align-items:center">
+
+<div style="display:flex;align-items:center;gap:10px">
+
+<div style="
+width:36px;
+height:36px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:18px;
+background:${isCredit ? 'rgba(34,197,94,.2)' : 'rgba(239,68,68,.2)'};
+color:${isCredit ? '#22c55e' : '#ef4444'};
+">
+${isCredit ? '⬆' : '⬇'}
+</div>
+
+<div>
+<div style="font-weight:600;color:#fff">
+${isCredit ? 'Credit' : 'Debit'}
+</div>
+<div style="font-size:12px;color:#94a3b8">
+${t.createdAt?.toDate ? 
+new Date(t.createdAt.toDate()).toLocaleString() : ''}
+</div>
+</div>
+
+</div>
+
+<div style="
+font-weight:700;
+font-size:17px;
+color:${isCredit ? '#22c55e' : '#ef4444'};
+">
+${isCredit ? '+' : '-'} ₹${t.amount}
+</div>
+
+</div>
+
+<div style="margin-top:8px;font-size:12px;color:#cbd5e1">
+Previous: ₹${t.previousBalance}<br>
+Updated: ₹${t.updatedBalance}
+</div>
+
+</div>
+`;
+});
+}
+
+html += `</div>`;
+
+Swal.fire({
+title: userName + " Transactions",
+html: html,
+width: 420,
+background: "#020617",
+color: "#fff",
+confirmButtonColor: "#6366f1"
+});
+
+});
+  }
 function addMember(){
 const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
 
@@ -308,6 +407,8 @@ createdAt:Date.now()
 walletUserId.value="";
 walletUserName.value="";
 }
+
+  
 
 function toggle(id,a){
 db.collection("members").doc(id).update({active:!a});
