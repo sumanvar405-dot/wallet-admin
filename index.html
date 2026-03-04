@@ -219,8 +219,9 @@ title.innerText=user.role==="admin"?"Admin Dashboard":"User Dashboard";
 
 if(user.role==="admin"){
 adminFilterBox.classList.remove("hide");
-singleFilter.addEventListener("input",()=>renderMembers(window.latestSnap));
 }
+singleFilter.addEventListener("input",()=>renderMembers(window.latestSnap));
+
 
 loadMembers(user);
 }
