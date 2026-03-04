@@ -399,26 +399,43 @@ confirmButtonColor: "#6366f1"
 });
   }
 function addMember(){
-const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
+const user = JSON.parse(localStorage.getItem("userProfileDashboard"));
 
-if(!walletUserId.value.trim()||!walletUserName.value.trim()){
+const id = walletUserId.value.trim();
+const name = walletUserName.value.trim();
+
+if(!id || !name){
 Swal.fire("Error","All fields are required","error");
 return;
 }
 
+// 🔹 Check duplicate walletUserId
+db.collection("members")
+.where("walletUserId","==",id)
+.get()
+.then(snap=>{
+
+if(!snap.empty){
+Swal.fire("Duplicate","This Wallet User ID already exists","warning");
+return;
+}
+
+// 🔹 Add member if not duplicate
 db.collection("members").add({
-walletUserId:walletUserId.value.trim(),
-walletUserName:walletUserName.value.trim(),
+walletUserId:id,
+walletUserName:name,
 createdBy:user.username,
 createdByRole:user.role,
 active:true,
 createdAt:Date.now()
-});
-
+}).then(()=>{
+Swal.fire("Success","Member added successfully","success");
 walletUserId.value="";
 walletUserName.value="";
-}
+});
 
+});
+}
   
 
 function toggle(id,a){
