@@ -238,7 +238,7 @@ const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
 if(!user) return;
 
 list.innerHTML="";
-const filter=user.role==="admin" ? singleFilter.value.toLowerCase() : "";
+const filter = singleFilter.value.toLowerCase();
 
 snap.forEach(doc=>{
 const m=doc.data();
