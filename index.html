@@ -248,7 +248,7 @@ if(m.createdBy!==user.username) return;
 if(!m.active) return;
 }
 
-if(user.role==="admin" && filter){
+if(filter){
 if(
 !m.walletUserName.toLowerCase().includes(filter) &&
 !m.walletUserId.toLowerCase().includes(filter) &&
