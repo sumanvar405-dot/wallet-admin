@@ -339,6 +339,18 @@ Delete
 
 if(!userId) return;
 
+    db.collection("members")
+.where("walletUserId","==",String(userId))
+.limit(1)
+.get()
+.then(memberSnap=>{
+
+let totalAmount = 0;
+
+if(!memberSnap.empty){
+totalAmount = memberSnap.docs[0].data().totalTransactionAmount || 0;
+}
+
 db.collection("transactions")
 .where("walletUserId","==",String(userId))
 .get()
@@ -372,6 +384,32 @@ transactions.slice(0,100).forEach(t=>{
 
 const isCredit = t.type === "credit";
 
+  let html = `
+<div style="
+background:linear-gradient(135deg,#0ea5e9,#38bdf8);
+padding:16px;
+border-radius:16px;
+margin-bottom:16px;
+color:#020617;
+text-align:center;
+">
+
+<div style="font-size:12px;font-weight:600">
+Total Transaction Amount
+</div>
+
+<div style="
+font-size:24px;
+font-weight:800;
+margin-top:4px;
+">
+₹${totalAmount}
+</div>
+
+</div>
+
+<div style="max-height:60vh;overflow:auto;padding-right:6px">
+`;
 html += `
 <div style="
 background:rgba(15,23,42,.95);
