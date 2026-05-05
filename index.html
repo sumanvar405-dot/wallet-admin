@@ -246,7 +246,7 @@ View All Transactions
         return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join("");
         }
         
-        const saved=localStorage.getItem("userProfileDashboard");
+        const saved=localStorage.getItem("userProfileDashboardAdmin");
         if(saved) showDashboard(JSON.parse(saved));
         
         async function login(){
@@ -261,7 +261,7 @@ View All Transactions
         .then(s=>{
         if(s.empty) return msg.innerText="Invalid login";
         const user=s.docs[0].data();
-        localStorage.setItem("userProfileDashboard",JSON.stringify(user));
+        localStorage.setItem("userProfileDashboardAdmin",JSON.stringify(user));
         showDashboard(user);
         });
         }
@@ -293,7 +293,7 @@ View All Transactions
         }
         
         function renderMembers(snap){
-        const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
+        const user=JSON.parse(localStorage.getItem("userProfileDashboardAdmin"));
         if(!user) return;
         
         list.innerHTML="";
@@ -493,7 +493,7 @@ confirmButtonColor: "#6366f1"
 });
 }
         function addMember(){
-        const user = JSON.parse(localStorage.getItem("userProfileDashboard"));
+        const user = JSON.parse(localStorage.getItem("userProfileDashboardAdmin"));
         
         const id = walletUserId.value.trim();
         const name = walletUserName.value.trim();
@@ -544,7 +544,7 @@ confirmButtonColor: "#6366f1"
 
         function openAllTransactions(){
 
-const currentUser = JSON.parse(localStorage.getItem("userProfileDashboard"));
+const currentUser = JSON.parse(localStorage.getItem("userProfileDashboardAdmin"));
 
 if(currentUser.role !== "admin"){
 Swal.fire("Access Denied","Only admin can view all transactions","error");
@@ -705,7 +705,7 @@ confirmButtonColor:"#6366f1"
         confirmButtonText:"Update"
         }).then(async result=>{
         if(!result.value) return;
-        const user=JSON.parse(localStorage.getItem("userProfileDashboard"));
+        const user=JSON.parse(localStorage.getItem("userProfileDashboardAdmin"));
         const h=await hashPassword(result.value);
         db.collection("users")
         .where("username","==",user.username)
