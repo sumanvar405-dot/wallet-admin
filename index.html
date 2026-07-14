@@ -354,7 +354,7 @@
             return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join("");
         }
 
-        const saved = localStorage.getItem("userProfileDashboardAdmin");
+        const saved = localStorage.getItem("userProfileDashboardAdminPro");
         if (saved) showDashboard(JSON.parse(saved));
 
         async function login() {
@@ -605,7 +605,7 @@ Updated: ₹${t.updatedBalance}
                 });
         }
         function addMember() {
-            const user = JSON.parse(localStorage.getItem("userProfileDashboardAdmin"));
+            const user = JSON.parse(localStorage.getItem("userProfileDashboardAdminPro"));
 
             const id = walletUserId.value.trim();
             const name = walletUserName.value.trim();
@@ -661,7 +661,7 @@ Updated: ₹${t.updatedBalance}
 
         function openAllTransactions() {
 
-            const currentUser = JSON.parse(localStorage.getItem("userProfileDashboardAdmin"));
+            const currentUser = JSON.parse(localStorage.getItem("userProfileDashboardAdminPro"));
 
             if (currentUser.role !== "admin") {
                 Swal.fire("Access Denied", "Only admin can view all transactions", "error");
