@@ -822,7 +822,7 @@ Updated: ₹${t.updatedBalance}
                 confirmButtonText: "Update"
             }).then(async result => {
                 if (!result.value) return;
-                const user = JSON.parse(localStorage.getItem("userProfileDashboardAdmin"));
+                const user = JSON.parse(localStorage.getItem("userProfileDashboardAdminPro"));
                 const h = await hashPassword(result.value);
                 db.collection("users")
                     .where("username", "==", user.username)
