@@ -369,7 +369,7 @@
                 .then(s => {
                     if (s.empty) return msg.innerText = "Invalid login";
                     const user = s.docs[0].data();
-                    localStorage.setItem("userProfileDashboardAdmin", JSON.stringify(user));
+                    localStorage.setItem("userProfileDashboardAdminPro", JSON.stringify(user));
                     showDashboard(user);
                 });
         }
